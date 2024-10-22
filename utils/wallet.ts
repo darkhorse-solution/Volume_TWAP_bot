@@ -27,8 +27,7 @@ export async function getCurrencyBalance(
     return (await web3.eth.getBalance(address)).toString() 
   }
 
-  const wallet = createWallet()
-  
+  console.log(address, currency);
   // Get currency otherwise
   const walletContract = new web3.eth.Contract(ITokenABI.abi, currency.address)
 
@@ -36,8 +35,6 @@ export async function getCurrencyBalance(
   
   console.log('Balance:', balance, currency.symbol);
   
-  const decimals: number = await walletContract.methods.decimals().call()
-
   // Format with proper units (approximate)
   return balance.toString()
   // return toReadableAmount(balance, decimals).toString()

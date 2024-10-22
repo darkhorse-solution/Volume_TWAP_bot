@@ -85,21 +85,21 @@ export async function POST(req: NextRequest) {
 
     while (volumeAmountUSD > currentVolumeUSD) {
       // Execute the first trade
-      let status = await executeVolumeTrade(provider, walletAddress, amountToken0In, token0, token1);
+      let status = await executeVolumeTrade(pairAddress, amountToken0In, token0, token1);
 
       if (status === TransactionState.Sent) {
-        currentVolumeUSD += tradeAmountUSD;
-        const balanceAfter = BigInt(await getCurrencyBalance(provider, walletAddress, Token1));
+        currentVolumeUSD += tradeAmountUSD;        
+        const balanceAfter = BigInt(await getCurrencyBalance(web3, walletAddress, Token1));
 
         console.log(`Volume Bot: ${balanceBefore} -> ${balanceAfter}`);
 
         // Calculate the amount of token1 received
         const amountToken1In = balanceAfter - balanceBefore;
         // Execute the second trade
-        status = await executeVolumeTrade(provider, walletAddress, amountToken1In, token1, token0);
+        status = await executeVolumeTrade(pairAddress, amountToken1In, token1, token0);
 
         for (let i = 0; i < 3; i++) {
-          status = await executeVolumeTrade(provider, walletAddress, amountToken1In, token1, token0);
+          status = await executeVolumeTrade(pairAddress, amountToken1In, token1, token0);
           if (status === TransactionState.Sent) {
             console.log("Volume Bot: Trade completed successfully");
             currentVolumeUSD += tradeAmountUSD;

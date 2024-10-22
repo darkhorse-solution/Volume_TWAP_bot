@@ -1,6 +1,7 @@
 import { ethers, providers, BigNumber, Bytes } from 'ethers'
 import Tx from 'ethereumjs-tx'
 import { TransactionBuilder } from 'web3-core'
+import { sendSignedTransaction } from 'web3-eth'
 
 declare global {
   interface Window {
