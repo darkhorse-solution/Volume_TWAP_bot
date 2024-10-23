@@ -27,7 +27,6 @@ export async function getCurrencyBalance(
     return (await web3.eth.getBalance(address)).toString() 
   }
 
-  console.log(address, currency);
   // Get currency otherwise
   const walletContract = new web3.eth.Contract(ITokenABI.abi, currency.address)
 

@@ -78,45 +78,29 @@ export function getWalletAddress(): string | null {
 // }
 
 export async function sendTransaction(
-  tx: any
+  tx: any,
+  to: string
 ): Promise<TransactionState> {
-  try {
-    console.log('Sending transaction:', tx);
-    
-    const nonce = await web3.eth.getTransactionCount(wallet.address || '')
-    const gasLimit = await web3.eth.estimateGas(tx)
-    const gasPrice = await web3.eth.getGasPrice()
-    const transaction = {
-      from: wallet.address,
-      nonce: web3.utils.toHex(nonce), // Ensure to convert nonce to hex
-      gas: web3.utils.toHex(300000), // Set gas limit
-      gasPrice: gasPrice, // Set gas price (in Gwei)
-      data: tx || undefined
-    };
+  const Tx = {
+    to: web3.utils.toChecksumAddress(to),
+    data: tx,
+    gas: "300000",
+    gasPrice: web3.utils.toWei("30", "gwei"),
+    nonce: await web3.eth.getTransactionCount(wallet.address, "pending"),
+  };
 
-  // Sign the transaction
-    const signedTxn = await web3.eth.accounts.signTransaction(transaction, wallet.privateKey);
-
-    if (signedTxn.rawTransaction) {
-      const txnHash = signedTxn.rawTransaction;
-      console.log('Signed transaction:', web3.utils.hexToBytes(txnHash), signedTxn);
-      
-      const status = await web3.eth.sendSignedTransaction(web3.utils.hexToBytes(txnHash))
-      // Send the signed transaction to the network
-      // const receipt = await web3.eth.sendSignedTransaction(signedTxn.rawTransaction);
-
-      // Return the transaction hash (formatted)
-      if (status.status === '0x1') {
-        return TransactionState.Sent
-      } else {
-        throw new Error('Failed to sign the transaction');
-      } 
+  const signedApprovalTx = await web3.eth.accounts.signTransaction(
+    Tx,
+    wallet.privateKey
+  );
+  const _receipt = await web3.eth.sendSignedTransaction(
+    signedApprovalTx.rawTransaction
+  );
+  console.log(_receipt.status, _receipt.transactionHash);
+  if (_receipt.status) {
+    return TransactionState.Sent
   } else {
-    throw new Error('Failed to sign the transaction');
-  }
-  } catch (e) {
-    console.log(e)
-    return TransactionState.Rejected
+    return TransactionState.Failed
   }
 }
 
